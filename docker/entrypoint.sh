@@ -1,5 +1,11 @@
 #!/bin/bash
 
+echo ">>> ENTRYPOINT SCRIPT TRIGGERED <<<"
+
+export SPARK_DAEMON_JAVA_OPTS="$SPARK_DAEMON_JAVA_OPTS -Djava.net.preferIPv4Stack=true"
+
+echo SPARK_DAEMON_JAVA_OPTS $SPARK_DAEMON_JAVA_OPTS
+
 if [ -n "$WAIT_FOR" ]; then
   IFS=';' read -a HOSTPORT_ARRAY <<< "$WAIT_FOR"
   for HOSTPORT in "${HOSTPORT_ARRAY[@]}"

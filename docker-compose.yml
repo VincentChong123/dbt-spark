@@ -19,6 +19,8 @@ services:
       - ./docker/spark-defaults.conf:/usr/spark/conf/spark-defaults.conf
     environment:
       - WAIT_FOR=dbt-hive-metastore:5432
+    networks:
+      - shared
 
   dbt-hive-metastore:
     image: postgres:9-alpine
@@ -28,3 +30,10 @@ services:
       - POSTGRES_USER=dbt
       - POSTGRES_PASSWORD=dbt
       - POSTGRES_DB=metastore
+    networks:
+      - shared
+
+networks:
+  shared:
+    external: true
+    name: my_shared_network

@@ -24,6 +24,8 @@ RUN apt-get update && \
     apt-get clean
 
 COPY entrypoint.sh /scripts/
+COPY ./hive-service-2.3.9.jar /usr/spark/jars/
+
 RUN chmod +x /scripts/entrypoint.sh
 
 ENTRYPOINT ["/scripts/entrypoint.sh"]
