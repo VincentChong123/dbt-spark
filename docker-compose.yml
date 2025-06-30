@@ -19,6 +19,14 @@ services:
       - ./docker/spark-defaults.conf:/usr/spark/conf/spark-defaults.conf
     environment:
       - WAIT_FOR=dbt-hive-metastore:5432
+    healthcheck: # Healthcheck for dbt-spark3-thrift
+      # Use beeline to connect and run a simple query.
+      # This confirms the Thrift server is up AND configured correctly with the Metastore.
+      test: ["CMD-SHELL", "/usr/spark/bin/beeline -u 'jdbc:hive2://localhost:10000/' --silent=true -e 'SELECT 1;' || exit 1"]
+      interval: 10s       # Check every 10 seconds
+      timeout: 5s         # Fail if command doesn't return within 5 seconds
+      retries: 20         # Retry up to 20 times (total 200 seconds after start_period)
+      start_period: 60s   # Give it 60 seconds to initialize before starting health checks
     networks:
       - shared
 
@@ -30,6 +38,13 @@ services:
       - POSTGRES_USER=dbt
       - POSTGRES_PASSWORD=dbt
       - POSTGRES_DB=metastore
+    healthcheck: # Healthcheck for dbt-hive-metastore (Postgres)
+      # Use pg_isready to check if Postgres is accepting connections.
+      test: ["CMD-SHELL", "pg_isready -U dbt -d metastore"]
+      interval: 5s    # Check every 5 seconds
+      timeout: 3s     # Fail if command doesn't return within 3 seconds
+      retries: 10     # Retry up to 10 times (total 50 seconds after start_period)
+      start_period: 15s # Give Postgres 15 seconds to start up before checking
     networks:
       - shared
 
